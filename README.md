@@ -13,9 +13,6 @@ client_id,firstname,middlename,lastname
 
 ```
 
-lets say you have a post to make to an endpoint to change the middle name of
-a series of clients.  
-
 The endpoint to update the client info might look like `http:/hostname/update-client`
 
 and the form data might look like `client_id=###&firstname=string&middlename=string&lastname=string`
