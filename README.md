@@ -27,10 +27,10 @@ so the example from the csv above would look like
 `/update-client?client_id=3465&firstname=Michael&middlename=Wayne&lastname=Wilding`
 
 # Config
-build and install by running `go install`
-if your environment is setup, you will now be able to run `csvToHttpPost`
-if you run without an argument you will get a readme including an example schema for your config.
-copy the schema to an actual json file and fill in the info.  Note it includes an array of headers.  You can add as many headers as you want.  I used it to add the appropriate session cookies so I can authenticate my calls.  Also, there is a known bug where you cant add more than one cookie.  My mvp didnt need it so I choose to save that edge case for the future. 
+- build and install by running `go install`
+- if your environment is setup, you will now be able to run `csvToHttpPost`
+- if you run without an argument you will get a readme including an example schema for your config.
+- copy the schema to an actual json file and fill in the info.  Note it includes an array of headers.  You can add as many headers as you want.  I used it to add the appropriate session cookies so I can authenticate my calls.  Also, there is a known bug where you cant add more than one cookie.  My mvp didnt need it so I choose to save that edge case for the future. 
 
 
-If you run `csvToHttpPost /path/to/file` you will see requests and responses printed to stdout.
+- If you run `csvToHttpPost /path/to/file` you will see requests and responses printed to stdout.
