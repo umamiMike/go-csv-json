@@ -1,4 +1,4 @@
-# csv to ajax
+# batch csv to http post
 
 This is sort of a one day project I made when I had an issue where a ui element accidentally let somebody create a whole bunch of things in an application, and there was no way in the app to undo that action, which was terribly inconvenient for the user, so I built this tool to  batch update all the items which had been created.
 
