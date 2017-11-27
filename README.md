@@ -34,3 +34,8 @@ so the example from the csv above would look like
 
 
 - If you run `csvToHttpPost /path/to/file` you will see requests and responses printed to stdout.
+
+---
+# Alternate Config
+For convenience I have added a binary compiled for mac.  Now you can run it as long as you have the right permissions and put in a directory accessible from your environment PATH.
+
