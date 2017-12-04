@@ -87,7 +87,7 @@ including a list of any headers
 }
 ********************************************************************************
 
-Then run ajaxFromCsv /path/to/file.csv
+Then run csvToHttpPost /path/to/file.csv
 
 
 `
