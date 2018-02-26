@@ -8,7 +8,7 @@ package main
 
 import (
 	"fmt"
-	// "github.com/davecgh/go-spew/spew"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/recursionpharma/go-csv-map"
 	"github.com/spf13/cobra"
 	"gopkg.in/cheggaaa/pb.v2"
@@ -22,31 +22,21 @@ import (
 var runningConfig Config
 
 func main() {
-	cmd := &cobra.Command{
-		Args:         cobra.MinimumNArgs(1),
-		Use:          "run /path/to/configfile.json",
-		Short:        "",
-		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			configtouse, err := LoadConfig(args[0])
-			runningConfig = configtouse
-			if err != nil {
-				cmd.Println(err)
-			}
-			processCsv(configtouse)
-			return nil
-		},
+	rootCmd := &cobra.Command{
+		Use:   "use",
+		Short: "short description",
 	}
-	cmd.AddCommand(createConfig())
+	rootCmd.AddCommand(Run)
+	rootCmd.AddCommand(createConfig())
 
-	if err := cmd.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-func processCsv(confi Config) {
+func processCsv(confi Config, csvfile string) {
 	c := make(chan int)
-	f, err := os.Open(confi.Csvfile)
+	f, err := os.Open(csvfile)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -84,7 +74,14 @@ func buildUrlData(d *url.Values, k string, v string) {
 func makeRequest(data url.Values) *http.Request {
 	req, _ := http.NewRequest("POST", runningConfig.Host+runningConfig.Endpoint, strings.NewReader(data.Encode()))
 	for _, header := range runningConfig.Headers {
-		req.Header.Set(header.Type, header.Value)
+		if header.Type == "Cookie" {
+			cookie := http.Cookie{Name: "", Value: header.Value}
+			spew.Dump(cookie)
+			req.AddCookie(&cookie)
+		} else {
+			req.Header.Set(header.Type, header.Value)
+		}
+
 	}
 	return req
 }
@@ -104,23 +101,4 @@ func performCall(data url.Values, c chan int) {
 	}
 	defer resp.Body.Close()
 	c <- 1
-}
-
-func createConfig() *cobra.Command {
-
-	myCommand := &cobra.Command{
-		Args:  cobra.MinimumNArgs(1),
-		Use:   "create-config /path/to/file",
-		Short: "generates boilerplate config file for you",
-		Long:  "Will create the boilerplate config file for you, supply a filename to generate",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			f, err := os.OpenFile(args[0], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-			defer f.Close()
-			if _, err = f.WriteString(configfiletoecho); err != nil {
-				panic(err)
-			}
-			return nil
-		},
-	}
-	return myCommand
 }
