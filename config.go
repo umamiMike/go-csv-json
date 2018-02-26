@@ -9,6 +9,7 @@ import (
 
 type Header struct {
 	Type  string `json:"type"`
+	Name  string `json: "name"`
 	Value string `json:"value"`
 }
 type Config struct {
@@ -53,13 +54,6 @@ so the example from the csv above would look like
 
 The other thing to note is the config file, where you fill in the requisite info
 including a list of any headers
-
-
-
-
-*************** Copy  into a json file (EX: config.json) ***********************
-` + configfiletoecho + ` ********************************************************************************
-Then run ajaxFromCsv /path/to/file.csv
 `
 	return fmtString
 }
