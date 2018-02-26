@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -16,11 +18,13 @@ type Config struct {
 	Headers  []Header `json:"headers"`
 }
 
-var configfile = "./conf.json" //REMOVE ME
-
 func LoadConfig(c string) (Config, error) {
 	var config Config
 	cfile, err := os.Open(c)
+	fc, _ := ioutil.ReadFile(c)
+	if isJSON(string(fc)) == false {
+		fmt.Println("the config file is not in JSON format")
+	}
 	defer cfile.Close()
 	if err != nil {
 	}
