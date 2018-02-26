@@ -13,7 +13,7 @@ client_id,firstname,middlename,lastname
 
 ```
 
-The endpoint to update the client info might look like `http:/hostname/update-client`
+The endpoint to update the client info might look like `http://hostname/update-client`
 
 and the form data might look like `client_id=###&firstname=string&middlename=string&lastname=string`
 
@@ -31,10 +31,7 @@ so the example from the csv above would look like
 - if your environment is setup, you will now be able to run `csvToHttpPost`
 - if you run without an argument you will get a readme including an example schema for your config.
 - copy the schema to an actual json file and fill in the info.  Note it includes an array of headers.  You can add as many headers as you want.  I used it to add the appropriate session cookies so I can authenticate my calls.  Also, there is a known bug where you cant add more than one cookie.  My mvp didnt need it so I choose to save that edge case for the future. 
-
-
 - If you run `csvToHttpPost /path/to/file` you will see requests and responses printed to stdout.
-
 ---
 # Alternate Config
 For convenience I have added a binary compiled for mac.  Now you can run it as long as you have the right permissions and put in a directory accessible from your environment PATH.
