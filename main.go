@@ -25,6 +25,7 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use:   "use",
 		Short: "short description",
+		Long:  printReadme(),
 	}
 	rootCmd.AddCommand(Run)
 	rootCmd.AddCommand(createConfig())
@@ -75,7 +76,7 @@ func makeRequest(data url.Values) *http.Request {
 	req, _ := http.NewRequest("POST", runningConfig.Host+runningConfig.Endpoint, strings.NewReader(data.Encode()))
 	for _, header := range runningConfig.Headers {
 		if header.Type == "Cookie" {
-			cookie := http.Cookie{Name: "", Value: header.Value}
+			cookie := http.Cookie{Name: header.Name, Value: header.Value}
 			spew.Dump(cookie)
 			req.AddCookie(&cookie)
 		} else {
