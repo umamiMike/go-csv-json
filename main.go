@@ -7,17 +7,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	// "github.com/davecgh/go-spew/spew"
 	"github.com/recursionpharma/go-csv-map"
-<<<<<<< Updated upstream
 	"github.com/spf13/cobra"
-	"io/ioutil"
-=======
-	//	"io/ioutil"
 	"gopkg.in/cheggaaa/pb.v2"
->>>>>>> Stashed changes
 	"net/http"
 	"net/url"
 	"os"
@@ -25,97 +19,20 @@ import (
 	"time"
 )
 
-type Header struct {
-	Type  string `json:"type"`
-	Value string `json:"value"`
-}
-type Config struct {
-	Host     string   `json:"host"`
-	Endpoint string   `json:"endpoint"`
-	Csvfile  string   `json:"csvfile"`
-	Headers  []Header `json:"headers"`
-}
-
-func LoadConfig() (Config, error) {
-	var config Config
-	cfile, err := os.Open(os.Args[1])
-	defer cfile.Close()
-	if err != nil {
-
-	}
-	jsonParser := json.NewDecoder(cfile)
-	err = jsonParser.Decode(&config)
-	return config, err
-}
 func main() {
 	cmd := &cobra.Command{
-		Use:   "run",
-		Short: "process",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			processCsv()
-			return nil
-		},
+		Use:          "run",
+		Short:        "Hi All, Use me",
 		SilenceUsage: true,
 	}
 	cmd.AddCommand(printTimeCmd())
+	cmd.AddCommand(createConfig())
+
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}
-	if len(os.Args) < 2 {
-		fmt.Println(printReadme())
-		fmtString := `
-This is a tool to run batch commands based on csv document
-The first row must contain the names of the encoded post commands
-lets say you have a post to make to an endpoint to change the middle name of
-a series of clients.  The enpoint might look like  http:/hostname/update-client
-and the form data might be client_id=###&firstname=string&middlename=string&lastname=string
-
-your csv file should look something like:
-
-client_id,firstname,middlename,lastname
-3456,michael,wayne,wilding
-
-the tool will run through every line of the csv document
-and make a post with the data on each row
-so the example from the csv above would look like
-/update-client?client_id=3465&firstname=michael&middlename=wayne&lastname=wilding
-
-The other thing to note is the config file, where you fill in the requisite info
-including a list of any headers
-
-
-
-
-*************** Copy  into a json file (EX: config.json) ***********************
-{
-        "host" : "http://example.com",
-        "endpoint" : "/endpoint",
-        "csvfile": "/path/to/file.csv",
-        "headers" : [
-                {  
-                        "type" : "Cookie",
-                        "value" : "PHPSESSID="
-                },
-                {
-                        "type" : "Content-Type",
-                        "value" : "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                {  
-                        "type" : "Origin",
-                        "value" : "http://example.com"
-                }
-        ]
 }
-********************************************************************************
 
-Then run csvToHttpPost /path/to/file.csv
-
-
-`
-		fmt.Println(fmtString)
-		return
-	}
-}
 func processCsv() {
 	confi, err := LoadConfig()
 	c := make(chan int)
@@ -186,20 +103,20 @@ func performCall(data url.Values, c chan int) {
 	c <- 1
 }
 
-func simpleProgress() {
-	count := 1000
-	bar := pb.StartNew(count)
-	for i := 0; i < count; i++ {
-		bar.Increment()
-		time.Sleep(time.Millisecond * 2)
-	}
-	bar.Finish()
-}
+func createConfig() *cobra.Command {
 
-func printTimeCmd() *cobra.Command {
 	return &cobra.Command{
-		Use: "curtime",
+		Use:   "create-config",
+		Short: "generates boilerplate config file for you",
+		Long:  "Will create the boilerplate config file for you",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) >= 0 {
+				f, err := os.OpenFile(args[0], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+				defer f.Close()
+				if _, err = f.WriteString(configfiletoecho); err != nil {
+					panic(err)
+				}
+			}
 			return nil
 		},
 	}
