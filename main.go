@@ -19,13 +19,24 @@ import (
 	"time"
 )
 
+var runningConfig Config
+
 func main() {
 	cmd := &cobra.Command{
-		Use:          "run",
-		Short:        "Hi All, Use me",
+		Args:         cobra.MinimumNArgs(1),
+		Use:          "run /path/to/configfile.json",
+		Short:        "",
 		SilenceUsage: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			configtouse, err := LoadConfig(args[0])
+			runningConfig = configtouse
+			if err != nil {
+				cmd.Println(err)
+			}
+			processCsv(configtouse)
+			return nil
+		},
 	}
-	cmd.AddCommand(printTimeCmd())
 	cmd.AddCommand(createConfig())
 
 	if err := cmd.Execute(); err != nil {
@@ -33,12 +44,8 @@ func main() {
 	}
 }
 
-func processCsv() {
-	confi, err := LoadConfig()
+func processCsv(confi Config) {
 	c := make(chan int)
-	if err != nil {
-		fmt.Println("error loading config", err)
-	}
 	f, err := os.Open(confi.Csvfile)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -75,12 +82,8 @@ func buildUrlData(d *url.Values, k string, v string) {
 }
 
 func makeRequest(data url.Values) *http.Request {
-	conf, err := LoadConfig()
-	if err != nil {
-		fmt.Print("error loading config", err)
-	}
-	req, _ := http.NewRequest("POST", conf.Host+conf.Endpoint, strings.NewReader(data.Encode()))
-	for _, header := range conf.Headers {
+	req, _ := http.NewRequest("POST", runningConfig.Host+runningConfig.Endpoint, strings.NewReader(data.Encode()))
+	for _, header := range runningConfig.Headers {
 		req.Header.Set(header.Type, header.Value)
 	}
 	return req
@@ -105,19 +108,19 @@ func performCall(data url.Values, c chan int) {
 
 func createConfig() *cobra.Command {
 
-	return &cobra.Command{
-		Use:   "create-config",
+	myCommand := &cobra.Command{
+		Args:  cobra.MinimumNArgs(1),
+		Use:   "create-config /path/to/file",
 		Short: "generates boilerplate config file for you",
-		Long:  "Will create the boilerplate config file for you",
+		Long:  "Will create the boilerplate config file for you, supply a filename to generate",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) >= 0 {
-				f, err := os.OpenFile(args[0], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-				defer f.Close()
-				if _, err = f.WriteString(configfiletoecho); err != nil {
-					panic(err)
-				}
+			f, err := os.OpenFile(args[0], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+			defer f.Close()
+			if _, err = f.WriteString(configfiletoecho); err != nil {
+				panic(err)
 			}
 			return nil
 		},
 	}
+	return myCommand
 }

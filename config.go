@@ -18,9 +18,9 @@ type Config struct {
 
 var configfile = "./conf.json" //REMOVE ME
 
-func LoadConfig() (Config, error) {
+func LoadConfig(c string) (Config, error) {
 	var config Config
-	cfile, err := os.Open(configfile)
+	cfile, err := os.Open(c)
 	defer cfile.Close()
 	if err != nil {
 	}
@@ -54,30 +54,8 @@ including a list of any headers
 
 
 *************** Copy  into a json file (EX: config.json) ***********************
-{
-        "host" : "http://example.com",
-        "endpoint" : "/endpoint",
-        "csvfile": "/path/to/file.csv",
-        "headers" : [
-                {  
-                        "type" : "Cookie",
-                        "value" : "PHPSESSID="
-                },
-                {
-                        "type" : "Content-Type",
-                        "value" : "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                {  
-                        "type" : "Origin",
-                        "value" : "http://example.com"
-                }
-        ]
-}
-********************************************************************************
-
+` + configfiletoecho + ` ********************************************************************************
 Then run ajaxFromCsv /path/to/file.csv
-
-
 `
 	return fmtString
 }
