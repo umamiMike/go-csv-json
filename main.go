@@ -9,14 +9,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	//	"github.com/davecgh/go-spew/spew"
+	// "github.com/davecgh/go-spew/spew"
 	"github.com/recursionpharma/go-csv-map"
+<<<<<<< Updated upstream
 	"github.com/spf13/cobra"
 	"io/ioutil"
+=======
+	//	"io/ioutil"
+	"gopkg.in/cheggaaa/pb.v2"
+>>>>>>> Stashed changes
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 type Header struct {
@@ -112,6 +118,7 @@ Then run csvToHttpPost /path/to/file.csv
 }
 func processCsv() {
 	confi, err := LoadConfig()
+	c := make(chan int)
 	if err != nil {
 		fmt.Println("error loading config", err)
 	}
@@ -132,22 +139,28 @@ func processCsv() {
 		os.Exit(1)
 	}
 
+	recordCount := len(records)
+	bar := pb.StartNew(recordCount)
 	for _, v := range records { //v is the map we are going to parse into the values
 		data := url.Values{}
 		for i, j := range v {
-			buildData(&data, i, j)
+			buildUrlData(&data, i, j)
 		}
-		performCall(&data)
+
+		time.Sleep(time.Millisecond * 45)
+		go performCall(data, c)
+		bar.Increment()
 	}
 }
-func buildData(d *url.Values, k string, v string) {
+
+func buildUrlData(d *url.Values, k string, v string) {
 	d.Set(k, v)
 }
 
-func makeRequest(data *url.Values) *http.Request {
+func makeRequest(data url.Values) *http.Request {
 	conf, err := LoadConfig()
 	if err != nil {
-		fmt.Println("error loading config", err)
+		fmt.Print("error loading config", err)
 	}
 	req, _ := http.NewRequest("POST", conf.Host+conf.Endpoint, strings.NewReader(data.Encode()))
 	for _, header := range conf.Headers {
@@ -155,18 +168,32 @@ func makeRequest(data *url.Values) *http.Request {
 	}
 	return req
 }
-func performCall(data *url.Values) {
+
+func performCall(data url.Values, c chan int) {
+	client := http.Client{}
 	req := makeRequest(data)
-	client := &http.Client{}
 	resp, err := client.Do(req)
+
 	if err != nil {
 		fmt.Println("error")
 	}
+	if resp.StatusCode != 200 {
+		fmt.Print("response Status Code:"+resp.Status, " for record: ", data.Get("id"))
+		time.Sleep(1 * time.Second)
+		performCall(data, c)
+	}
 	defer resp.Body.Close()
-	fmt.Println("response Status:", resp.Status, "\n")
-	fmt.Println("response Headers:", resp.Header, "\n")
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body), "\n")
+	c <- 1
+}
+
+func simpleProgress() {
+	count := 1000
+	bar := pb.StartNew(count)
+	for i := 0; i < count; i++ {
+		bar.Increment()
+		time.Sleep(time.Millisecond * 2)
+	}
+	bar.Finish()
 }
 
 func printTimeCmd() *cobra.Command {
