@@ -62,18 +62,25 @@ func processCsv(confi Config, csvfile string, rate int) {
 	bar := pb.New(recordCount)
 	bar.SetWidth(100)
 	bar.Start()
+	go incrementBar(bar, c)
 	for _, v := range records { //v is the map we are going to parse into the values
 		data := url.Values{}
 		for i, j := range v {
 			buildUrlData(&data, i, j)
 		}
-
 		time.Sleep(time.Millisecond * time.Duration(rate)) //rate limits based on argument
 		go performCall(data, c)
-		bar.Increment()
 	}
 }
 
+func incrementBar(bar *pb.ProgressBar, c chan int) {
+	for {
+		inc := <-c
+		if inc == 1 {
+			bar.Increment()
+		}
+	}
+}
 func buildUrlData(d *url.Values, k string, v string) {
 	d.Set(k, v)
 }
@@ -101,20 +108,21 @@ func performCall(data url.Values, c chan int) {
 		fmt.Println("error")
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Print("response Status Code:"+resp.Status, " for record: ", data.Get("id"))
+		c <- -1
 		performCall(data, c)
 	}
 	bodybytes, _ := ioutil.ReadAll(resp.Body)
-	var gr GoodResponse
+	var gr goodResponse
 	json.Unmarshal(bodybytes, &gr)
-	if gr.result != true {
+	if gr.Result != true {
+		c <- -1
 		performCall(data, c)
 	}
 	defer resp.Body.Close()
 	c <- 1
 }
 
-type GoodResponse struct {
-	result bool   `json:"result"`
-	reason string `json: "reason"`
+type goodResponse struct {
+	Result bool   `json:"result"`
+	Reason string `json: "reason"`
 }
