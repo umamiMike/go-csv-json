@@ -35,7 +35,9 @@ func main() {
 	}
 }
 
-func processCsv(confi Config, csvfile string) {
+func processCsv(confi Config, csvfile string, rate int) {
+	spew.Dump("config %v", confi)
+	fmt.Println("Rate in Milliseconds, if recieving too many 502 errors restart with bigger number", rate)
 	c := make(chan int)
 	f, err := os.Open(csvfile)
 	if err != nil {
@@ -62,7 +64,7 @@ func processCsv(confi Config, csvfile string) {
 			buildUrlData(&data, i, j)
 		}
 
-		time.Sleep(time.Millisecond * 45)
+		time.Sleep(time.Millisecond * time.Duration(rate))
 		go performCall(data, c)
 		bar.Increment()
 	}
@@ -77,7 +79,6 @@ func makeRequest(data url.Values) *http.Request {
 	for _, header := range runningConfig.Headers {
 		if header.Type == "Cookie" {
 			cookie := http.Cookie{Name: header.Name, Value: header.Value}
-			spew.Dump(cookie)
 			req.AddCookie(&cookie)
 		} else {
 			req.Header.Set(header.Type, header.Value)

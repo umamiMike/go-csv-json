@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
+	"strconv"
 )
 
 //flags
@@ -18,6 +19,9 @@ var Run = &cobra.Command{
 		if len(args) < 2 {
 			return fmt.Errorf("You need to supply a path to a csv file")
 		}
+		if len(args) < 3 {
+			return fmt.Errorf("You need to supply a rate in Milliseconds denoting how fast you want to hit the endpoint")
+		}
 		return nil
 	},
 	Use:          "run /path/to/config.json /path/to/file.csv",
@@ -26,13 +30,17 @@ var Run = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		configtouse, err := LoadConfig(args[0])
+		rate, err := strconv.Atoi(args[2])
+		if err != nil {
+			return fmt.Errorf("could not convert string to int for rate")
+		}
 		csvfile := args[1]
 		fmt.Println(csvfile)
 		runningConfig = configtouse
 		if err != nil {
 			cmd.Println(err)
 		}
-		processCsv(configtouse, csvfile)
+		processCsv(configtouse, csvfile, rate)
 		return nil
 	},
 }
