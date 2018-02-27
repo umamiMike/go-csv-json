@@ -7,11 +7,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/recursionpharma/go-csv-map"
 	"github.com/spf13/cobra"
 	"gopkg.in/cheggaaa/pb.v2"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -57,14 +59,16 @@ func processCsv(confi Config, csvfile string, rate int) {
 	}
 
 	recordCount := len(records)
-	bar := pb.StartNew(recordCount)
+	bar := pb.New(recordCount)
+	bar.SetWidth(100)
+	bar.Start()
 	for _, v := range records { //v is the map we are going to parse into the values
 		data := url.Values{}
 		for i, j := range v {
 			buildUrlData(&data, i, j)
 		}
 
-		time.Sleep(time.Millisecond * time.Duration(rate))
+		time.Sleep(time.Millisecond * time.Duration(rate)) //rate limits based on argument
 		go performCall(data, c)
 		bar.Increment()
 	}
@@ -96,11 +100,21 @@ func performCall(data url.Values, c chan int) {
 	if err != nil {
 		fmt.Println("error")
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		fmt.Print("response Status Code:"+resp.Status, " for record: ", data.Get("id"))
-		time.Sleep(1 * time.Second)
+		performCall(data, c)
+	}
+	bodybytes, _ := ioutil.ReadAll(resp.Body)
+	var gr GoodResponse
+	json.Unmarshal(bodybytes, &gr)
+	if gr.result != true {
 		performCall(data, c)
 	}
 	defer resp.Body.Close()
 	c <- 1
+}
+
+type GoodResponse struct {
+	result bool   `json:"result"`
+	reason string `json: "reason"`
 }
