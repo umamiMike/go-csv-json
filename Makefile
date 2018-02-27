@@ -1,4 +1,5 @@
 build:
-	go build -o csvToHttptest 
+	go build -o posty 
+	@echo "posty build complete"
 run:
 	./csvToHttptest
