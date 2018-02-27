@@ -1,6 +1,7 @@
 if failing
   sleep for a a few seconds
-  turn up the rate
+  turn down  the rate
+restart from where you left off
   continue
 
 Ability to Restart
@@ -12,3 +13,9 @@ if restart
 on complete
   erase .restart file
   
+# Rate limiting option 2
+when recieves data updated message, 
+write to a channel
+  sends to a channel
+
+
