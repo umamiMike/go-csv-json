@@ -1,3 +1,6 @@
+/**NOTE: look back in commit history for vestigial attempt to add a pattern of transformations
+to be able to inject based on flags or args
+*/
 package main
 
 import "strings"
