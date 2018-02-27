@@ -1,0 +1,14 @@
+if failing
+  sleep for a a few seconds
+  turn up the rate
+  continue
+
+Ability to Restart
+when starting, ask if should start at the beginning or restart
+.restart file
+  only the row number of the last file exists
+if restart
+  erase .restart file
+on complete
+  erase .restart file
+  
