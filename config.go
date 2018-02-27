@@ -61,11 +61,11 @@ including a list of any headers
 var configfiletoecho = `{
         "host" : "http://example.com",
         "endpoint" : "/endpoint",
-        "csvfile": "/path/to/file.csv",
         "headers" : [
                 {  
-                        "type" : "Cookie",
-                        "value" : "PHPSESSID="
+												"type" : "Cookie",
+                        "name" : "PHPSESSID",
+                        "value" : ""
                 },
                 {
                         "type" : "Content-Type",
