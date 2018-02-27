@@ -13,6 +13,7 @@ import (
 	"github.com/recursionpharma/go-csv-map"
 	"github.com/spf13/cobra"
 	"gopkg.in/cheggaaa/pb.v2"
+
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -25,12 +26,15 @@ var runningConfig Config
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "use",
-		Short: "short description",
-		Long:  printReadme(),
+		Use:   "posty",
+		Short: "A tool for posting to an endpoint from rows in a CSV",
+		// Long:  printReadme(),
 	}
 	rootCmd.AddCommand(Run)
+	// Run.PersistentFlags().StringP("rate", "r", "100", "Number is milliseconds")
+
 	rootCmd.AddCommand(createConfig())
+	// rootCmd.PersistentFlags().StringP("config", "c", "configfile", "config file (default is $HOME/.cobra.yaml)")
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -63,7 +67,7 @@ func processCsv(confi Config, csvfile string, rate int) {
 	bar.SetWidth(100)
 	bar.Start()
 	go incrementBar(bar, c)
-	for _, v := range records { //v is the map we are going to parse into the values
+	for _, v := range records { //v is the map we are going to parse into the values, can be accessed like ->  v["header"]
 		data := url.Values{}
 		for i, j := range v {
 			buildUrlData(&data, i, j)
