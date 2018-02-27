@@ -36,6 +36,9 @@ func LoadConfig(c string) (Config, error) {
 
 func printReadme() string {
 	fmtString := `
+*********************************************************************************************
+Posty!  *************************************************************************************
+*********************************************************************************************
 This is a tool to run batch commands based on csv document
 The first row must contain the names of the encoded post commands
 lets say you have a post to make to an endpoint to change the middle name of
@@ -54,6 +57,9 @@ so the example from the csv above would look like
 
 The other thing to note is the config file, where you fill in the requisite info
 including a list of any headers
+
+*********************************************************************************************
+*********************************************************************************************
 `
 	return fmtString
 }
