@@ -14,7 +14,7 @@ var Source string
 var Run = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("You need to supply two arguments, [config file] [csv file to process]")
+			return fmt.Errorf("You need to supply 3 arguments, [config file] [csv file to process] [rate in milliseconds]")
 		}
 		if len(args) < 2 {
 			return fmt.Errorf("You need to supply a path to a csv file")
@@ -24,11 +24,10 @@ var Run = &cobra.Command{
 		}
 		return nil
 	},
-	Use:          "run /path/to/config.json /path/to/file.csv",
+	Use:          "run /path/to/config.json /path/to/file.csv int rate",
 	Short:        "run http post to all rows in csv file",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		configtouse, err := LoadConfig(args[0])
 		rate, err := strconv.Atoi(args[2])
 		if err != nil {

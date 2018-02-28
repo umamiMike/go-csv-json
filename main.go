@@ -118,6 +118,7 @@ func performCall(data url.Values, c chan int) {
 	bodybytes, _ := ioutil.ReadAll(resp.Body)
 	var gr goodResponse
 	json.Unmarshal(bodybytes, &gr)
+	//purpose built TODO: Refactor
 	if gr.Result != true {
 		c <- -1
 		performCall(data, c)
