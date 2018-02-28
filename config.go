@@ -37,26 +37,26 @@ func LoadConfig(c string) (Config, error) {
 func printReadme() string {
 	fmtString := `
 *********************************************************************************************
-Posty!  *************************************************************************************
+Posty!   Hit that Endpoint!   ***************************************************************
 *********************************************************************************************
 This is a tool to run batch commands based on csv document
-The first row must contain the names of the encoded post commands
-lets say you have a post to make to an endpoint to change the middle name of
-a series of clients.  The enpoint might look like  http:/hostname/update-client
-and the form data might be client_id=###&firstname=string&middlename=string&lastname=string
 
+The first row must contain the names of the encoded post commands
 your csv file should look something like:
 
-client_id,firstname,middlename,lastname
-3456,michael,wayne,wilding
+first row ->             id,firstname,middlename,lastname
+each successive row ->  3456,michael,wayne,wilding
+
+use the 'posty create-config ' command to generate the boilerplate json file
+Fill in the appropriate data, including the hostname, origin, endpoint, and any cookies.
+
+The enpoint might look like     http://hostname/update-client
+The form data might be          client_id=###&firstname=string&middlename=string&lastname=string
 
 the tool will run through every line of the csv document
 and make a post with the data on each row
 so the example from the csv above would look like
-/update-client?client_id=3465&firstname=michael&middlename=wayne&lastname=wilding
-
-The other thing to note is the config file, where you fill in the requisite info
-including a list of any headers
+http://hostname/update-client/update-client?id=3465&firstname=michael&middlename=wayne&lastname=wilding
 
 *********************************************************************************************
 *********************************************************************************************
