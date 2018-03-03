@@ -43,8 +43,6 @@ func main() {
 
 func processCsv(confi Config, csvfile string, rate int) {
 	spew.Dump("config %v", confi)
-	fmt.Println("Rate in Milliseconds, if recieving too many 502 errors restart with bigger number", rate)
-	c := make(chan int)
 	f, err := os.Open(csvfile)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -61,10 +59,13 @@ func processCsv(confi Config, csvfile string, rate int) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	recordCount := len(records)
-	bar := pb.New(recordCount)
-	bar.SetWidth(100)
+	c := make(chan int)
+	d := make(chan string)
+	//record count * rate / 1024 /60
+	number := (rate * len(records) / 1024 / 60)
+	fmt.Println("There are", len(records), "records", rate, "Milliseconds per, which will take approx", number, "minutes.")
+	//	go readout(d, c, len(records))
+	bar := pb.New(len(records))
 	bar.Start()
 	go incrementBar(bar, c)
 	for _, v := range records { //v is the map we are going to parse into the values, can be accessed like ->  v["header"]
@@ -73,7 +74,7 @@ func processCsv(confi Config, csvfile string, rate int) {
 			buildUrlData(&data, i, j)
 		}
 		time.Sleep(time.Millisecond * time.Duration(rate)) //rate limits based on argument
-		go performCall(data, c)
+		go performCall(data, c, d)
 	}
 }
 
@@ -102,8 +103,16 @@ func makeRequest(data url.Values) *http.Request {
 	}
 	return req
 }
+func readout(data chan string, c chan int, totalrecords int) {
+	for {
+		//	time.Sleep(100 * time.Millisecond)
+		count := <-c
+		totalrecords -= count
+		fmt.Print("records left to process are: ", totalrecords, "\r")
+	}
+}
 
-func performCall(data url.Values, c chan int) {
+func performCall(data url.Values, c chan int, d chan<- string) {
 	client := http.Client{}
 	req := makeRequest(data)
 	resp, err := client.Do(req)
@@ -111,20 +120,23 @@ func performCall(data url.Values, c chan int) {
 	if err != nil {
 		fmt.Println("error")
 	}
-	if resp.StatusCode != http.StatusOK {
-		c <- -1
-		performCall(data, c)
+	if resp.StatusCode == http.StatusBadGateway {
+		time.Sleep(1 * time.Second)
+		performCall(data, c, d)
+		return
 	}
+
 	bodybytes, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
 	var gr goodResponse
 	json.Unmarshal(bodybytes, &gr)
+
 	//purpose built TODO: Refactor
 	if gr.Result != true {
-		c <- -1
-		performCall(data, c)
+		performCall(data, c, d)
+		return
 	}
-	defer resp.Body.Close()
-	c <- 1
+	c <- 1 //sending 1 to the channel complete
 }
 
 type goodResponse struct {
