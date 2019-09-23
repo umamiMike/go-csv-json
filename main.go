@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/csv"
 	"github.com/umamimike/go-csv-json/config"
 	"github.com/umamimike/go-csv-json/utils"
 	"github.com/umamimike/go-csv-json/validate"

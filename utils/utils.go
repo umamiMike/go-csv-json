@@ -4,11 +4,11 @@ import "net/http"
 import "net/url"
 import "strings"
 
-func BuildURLData(d *url.Values, k string, v string) {
+func buildURLData(d *url.Values, k string, v string) {
 	d.Set(k, v)
 }
 
-func MakeRequest(data url.Values) *http.Request {
+func makeRequest(data url.Values) *http.Request {
 	req, _ := http.NewRequest("POST", runningConfig.Host+runningConfig.Endpoint, strings.NewReader(data.Encode()))
 	for _, header := range runningConfig.Headers {
 		if header.Type == "Cookie" {
